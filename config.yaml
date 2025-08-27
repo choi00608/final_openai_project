@@ -1,0 +1,5 @@
+prompt:
+  id: "pmpt_68ac1a14fd4881959da68057b65c0fd80fe833400bc94b11"
+service_tier: "auto" # auto, flex, default, priority
+truncation: "auto"   # auto, disabled
+
