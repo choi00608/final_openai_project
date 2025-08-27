@@ -84,3 +84,5 @@
 
 # 7. 개발 시작하기
 - 해당 프로젝트의 app.py 파일의 내용을 참고하여 openai api의 작동방식을 보고, 잘 활용하면 된다.
+
+참고: https://docs.google.com/document/d/1VfarcF5UyNPGwtUQ0Ytso9Lgth__9QnRpf19vmi0Hno/edit?tab=t.gy0pxjxdlp5f#heading=h.wl5yab8ixpzs
