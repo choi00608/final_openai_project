@@ -12,7 +12,8 @@ with open("config.yaml") as f:
     config = yaml.safe_load(f)
 
 load_dotenv()
-client = OpenAI()
+import os
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = Flask(__name__)
 
@@ -40,24 +41,35 @@ def chat_api():
             print("Starting chat API call...")
 
             # OpenAI API 호출
-            response = client.responses.create(
-                input=input_message,
-                previous_response_id=previous_response_id,
-                stream=True,
-                **config
-            )
-
-            print("OpenAI API response created successfully")
+            try:
+                response = client.responses.create(
+                    input=input_message,
+                    previous_response_id=previous_response_id,
+                    stream=True,
+                    **config
+                )
+                print("OpenAI API response created successfully")
+            except Exception as api_error:
+                error_message = f"OpenAI API 호출 중 오류 발생: {str(api_error)}"
+                print(error_message)
+                yield f"data: {json.dumps({'type': 'error', 'message': error_message})}\n\n"
+                return
 
             max_repeats = 5
             for _ in range(max_repeats):
                 function_call_outputs = []
                 for event in response:
-                    print(f"Processing event type: {event.type}")
-                    if event.type == "response.output_text.delta":
-                        yield f"data: {json.dumps({'type': 'text_delta', 'delta': event.delta})}\n\n"
+                    try:
+                        print(f"Processing event type: {event.type}")
+                        if event.type == "response.output_text.delta":
+                            yield f"data: {json.dumps({'type': 'text_delta', 'delta': event.delta})}\n\n"
+                    except Exception as stream_error:
+                        error_message = f"스트리밍 처리 중 오류 발생: {str(stream_error)}"
+                        print(error_message)
+                        yield f"data: {json.dumps({'type': 'error', 'message': error_message})}\n\n"
+                        break
 
-                    elif event.type == "response.completed":
+                    if event.type == "response.completed":
                         previous_response_id = event.response.id
 
                     elif event.type == "response.image_generation_call.partial_image":
